@@ -1,12 +1,10 @@
 package demo;
 
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import static org.hamcrest.CoreMatchers.startsWith;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class HelloTest {
 
@@ -19,48 +17,14 @@ public class HelloTest {
     }
 
     @Test
-    public void shouldThrowIllegalArgumentExceptionWithMessage() {
-        expectedEx.expect(IllegalArgumentException.class);
-        expectedEx.expectMessage("testing");
-        throw new IllegalArgumentException("testing");
+    public void shouldThrowIllegalArgumentExceptionWithMessageAndCause() {
+        assertThatThrownBy(() -> hello())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageStartingWith("testing")
+                .hasCause(new NullPointerException("testing-null"));
     }
 
-    @Test
-    public void shouldThrowIllegalArgumentExceptionAndCheckMessagePattern() {
-        expectedEx.expect(IllegalArgumentException.class);
-        expectedEx.expectMessage(startsWith("testing"));
-        throw new IllegalArgumentException("testing 23423!");
-    }
-
-    @Test
-    public void shouldThrowIllegalArgumentExceptionAndCheckMessageWithCustomPattern() {
-        expectedEx.expect(IllegalArgumentException.class);
-        expectedEx.expectMessage(new BaseMatcher<String>() {
-            public boolean matches(Object item) {
-                String message = ((String) item);
-                return message.startsWith("testing ") && message.endsWith("!");
-            }
-            public void describeTo(Description description) {
-            }
-        });
-        throw new IllegalArgumentException("testing 23423!");
-    }
-
-    @Test
-    public void shouldThrowIllegalArgumentExceptionWithCause() {
-        expectedEx.expect(IllegalArgumentException.class);
-        expectedEx.expectCause(new BaseMatcher<NullPointerException>() {
-            public void describeTo(Description description) {
-            }
-            public boolean matches(Object item) {
-                if (item instanceof NullPointerException) {
-                    NullPointerException cause = (NullPointerException) item;
-                    return cause.getMessage().equals("testing-null");
-                } else {
-                    return false;
-                }
-            }
-        });
+    private void hello() {
         throw new IllegalArgumentException("testing", new NullPointerException("testing-null"));
     }
 
